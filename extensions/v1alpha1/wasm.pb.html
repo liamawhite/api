@@ -337,7 +337,7 @@ More details can be found <a href="https://www.envoyproxy.io/docs/envoy/latest/a
 </tr>
 <tr id="WasmPlugin-match">
 <td><div class="field"><div class="name"><code><a href="#WasmPlugin-match">match</a></code></div>
-<div class="type"><a href="#WasmPlugin-TrafficSelector">TrafficSelector[]</a></div>
+<div class="type"><a href="#TrafficSelector">TrafficSelector[]</a></div>
 </div></td>
 <td>
 <p>Specifies the criteria to determine which traffic is passed to WasmPlugin.
@@ -352,51 +352,6 @@ the traffic passes the WasmPlugin.</p>
 </div></td>
 <td>
 <p>Specifies the type of Wasm Extension to be used.</p>
-
-</td>
-</tr>
-</tbody>
-</table>
-</section>
-<h3 id="WasmPlugin-TrafficSelector">TrafficSelector</h3>
-<section>
-<p>TrafficSelector provides a mechanism to select a specific traffic flow
-for which this Wasm Plugin will be enabled.
-When all the sub conditions in the TrafficSelector are satisfied, the
-traffic will be selected.</p>
-
-<table class="message-fields">
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr id="WasmPlugin-TrafficSelector-mode">
-<td><div class="field"><div class="name"><code><a href="#WasmPlugin-TrafficSelector-mode">mode</a></code></div>
-<div class="type"><a href="https://istio.io/docs/reference/config/type/workload-selector.html#WorkloadMode">WorkloadMode</a></div>
-</div></td>
-<td>
-<p>Criteria for selecting traffic by their direction.
-Note that <code>CLIENT</code> and <code>SERVER</code> are analogous to OUTBOUND and INBOUND,
-respectively.
-For the gateway, the field should be <code>CLIENT</code> or <code>CLIENT_AND_SERVER</code>.
-If not specified, the default value is <code>CLIENT_AND_SERVER</code>.</p>
-
-</td>
-</tr>
-<tr id="WasmPlugin-TrafficSelector-ports">
-<td><div class="field"><div class="name"><code><a href="#WasmPlugin-TrafficSelector-ports">ports</a></code></div>
-<div class="type"><a href="https://istio.io/docs/reference/config/type/workload-selector.html#PortSelector">PortSelector[]</a></div>
-</div></td>
-<td>
-<p>Criteria for selecting traffic by their destination port.
-More specifically, for the outbound traffic, the destination port would be
-the port of the target service. On the other hand, for the inbound traffic,
-the destination port is the port bound by the server process in the same Pod.</p>
-<p>If one of the given <code>ports</code> is matched, this condition is evaluated to true.
-If not specified, this condition is evaluated to true for any port.</p>
 
 </td>
 </tr>
@@ -468,6 +423,51 @@ Must be a C_IDENTIFIER.</p>
 <p>Value for the environment variable.
 Only applicable if <code>valueFrom</code> is <code>HOST</code>.
 Defaults to &ldquo;&rdquo;.</p>
+
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<h2 id="TrafficSelector">TrafficSelector</h2>
+<section>
+<p>TrafficSelector provides a mechanism to select a specific traffic flow
+for which a plugin will be enabled.
+When all the sub conditions in the TrafficSelector are satisfied, the
+traffic will be selected.</p>
+
+<table class="message-fields">
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr id="TrafficSelector-mode">
+<td><div class="field"><div class="name"><code><a href="#TrafficSelector-mode">mode</a></code></div>
+<div class="type"><a href="https://istio.io/docs/reference/config/type/workload-selector.html#WorkloadMode">WorkloadMode</a></div>
+</div></td>
+<td>
+<p>Criteria for selecting traffic by their direction.
+Note that <code>CLIENT</code> and <code>SERVER</code> are analogous to OUTBOUND and INBOUND,
+respectively.
+For the gateway, the field should be <code>CLIENT</code> or <code>CLIENT_AND_SERVER</code>.
+If not specified, the default value is <code>CLIENT_AND_SERVER</code>.</p>
+
+</td>
+</tr>
+<tr id="TrafficSelector-ports">
+<td><div class="field"><div class="name"><code><a href="#TrafficSelector-ports">ports</a></code></div>
+<div class="type"><a href="https://istio.io/docs/reference/config/type/workload-selector.html#PortSelector">PortSelector[]</a></div>
+</div></td>
+<td>
+<p>Criteria for selecting traffic by their destination port.
+More specifically, for the outbound traffic, the destination port would be
+the port of the target service. On the other hand, for the inbound traffic,
+the destination port is the port bound by the server process in the same Pod.</p>
+<p>If one of the given <code>ports</code> is matched, this condition is evaluated to true.
+If not specified, this condition is evaluated to true for any port.</p>
 
 </td>
 </tr>

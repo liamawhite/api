@@ -656,7 +656,7 @@ type WasmPlugin struct {
 	// Specifies the criteria to determine which traffic is passed to WasmPlugin.
 	// If a traffic satisfies any of TrafficSelectors,
 	// the traffic passes the WasmPlugin.
-	Match []*WasmPlugin_TrafficSelector `protobuf:"bytes,12,rep,name=match,proto3" json:"match,omitempty"`
+	Match []*TrafficSelector `protobuf:"bytes,12,rep,name=match,proto3" json:"match,omitempty"`
 	// Specifies the type of Wasm Extension to be used.
 	Type          PluginType `protobuf:"varint,14,opt,name=type,proto3,enum=istio.extensions.v1alpha1.PluginType" json:"type,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -791,7 +791,7 @@ func (x *WasmPlugin) GetVmConfig() *VmConfig {
 	return nil
 }
 
-func (x *WasmPlugin) GetMatch() []*WasmPlugin_TrafficSelector {
+func (x *WasmPlugin) GetMatch() []*TrafficSelector {
 	if x != nil {
 		return x.Match
 	}
@@ -927,10 +927,10 @@ func (x *EnvVar) GetValue() string {
 }
 
 // TrafficSelector provides a mechanism to select a specific traffic flow
-// for which this Wasm Plugin will be enabled.
+// for which a plugin will be enabled.
 // When all the sub conditions in the TrafficSelector are satisfied, the
 // traffic will be selected.
-type WasmPlugin_TrafficSelector struct {
+type TrafficSelector struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Criteria for selecting traffic by their direction.
 	// Note that `CLIENT` and `SERVER` are analogous to OUTBOUND and INBOUND,
@@ -952,20 +952,20 @@ type WasmPlugin_TrafficSelector struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *WasmPlugin_TrafficSelector) Reset() {
-	*x = WasmPlugin_TrafficSelector{}
+func (x *TrafficSelector) Reset() {
+	*x = TrafficSelector{}
 	mi := &file_extensions_v1alpha1_wasm_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *WasmPlugin_TrafficSelector) String() string {
+func (x *TrafficSelector) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WasmPlugin_TrafficSelector) ProtoMessage() {}
+func (*TrafficSelector) ProtoMessage() {}
 
-func (x *WasmPlugin_TrafficSelector) ProtoReflect() protoreflect.Message {
+func (x *TrafficSelector) ProtoReflect() protoreflect.Message {
 	mi := &file_extensions_v1alpha1_wasm_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -977,19 +977,19 @@ func (x *WasmPlugin_TrafficSelector) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WasmPlugin_TrafficSelector.ProtoReflect.Descriptor instead.
-func (*WasmPlugin_TrafficSelector) Descriptor() ([]byte, []int) {
-	return file_extensions_v1alpha1_wasm_proto_rawDescGZIP(), []int{0, 0}
+// Deprecated: Use TrafficSelector.ProtoReflect.Descriptor instead.
+func (*TrafficSelector) Descriptor() ([]byte, []int) {
+	return file_extensions_v1alpha1_wasm_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *WasmPlugin_TrafficSelector) GetMode() v1beta1.WorkloadMode {
+func (x *TrafficSelector) GetMode() v1beta1.WorkloadMode {
 	if x != nil {
 		return x.Mode
 	}
 	return v1beta1.WorkloadMode(0)
 }
 
-func (x *WasmPlugin_TrafficSelector) GetPorts() []*v1beta1.PortSelector {
+func (x *TrafficSelector) GetPorts() []*v1beta1.PortSelector {
 	if x != nil {
 		return x.Ports
 	}
@@ -1000,7 +1000,7 @@ var File_extensions_v1alpha1_wasm_proto protoreflect.FileDescriptor
 
 const file_extensions_v1alpha1_wasm_proto_rawDesc = "" +
 	"\n" +
-	"\x1eextensions/v1alpha1/wasm.proto\x12\x19istio.extensions.v1alpha1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1btype/v1beta1/selector.proto\"\xab\b\n" +
+	"\x1eextensions/v1alpha1/wasm.proto\x12\x19istio.extensions.v1alpha1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1btype/v1beta1/selector.proto\"\x9f\a\n" +
 	"\n" +
 	"WasmPlugin\x12@\n" +
 	"\bselector\x18\x01 \x01(\v2$.istio.type.v1beta1.WorkloadSelectorR\bselector\x12G\n" +
@@ -1020,19 +1020,19 @@ const file_extensions_v1alpha1_wasm_proto_rawDesc = "" +
 	"\bpriority\x18\n" +
 	" \x01(\v2\x1b.google.protobuf.Int32ValueR\bpriority\x12L\n" +
 	"\rfail_strategy\x18\r \x01(\x0e2'.istio.extensions.v1alpha1.FailStrategyR\ffailStrategy\x12@\n" +
-	"\tvm_config\x18\v \x01(\v2#.istio.extensions.v1alpha1.VmConfigR\bvmConfig\x12K\n" +
-	"\x05match\x18\f \x03(\v25.istio.extensions.v1alpha1.WasmPlugin.TrafficSelectorR\x05match\x129\n" +
-	"\x04type\x18\x0e \x01(\x0e2%.istio.extensions.v1alpha1.PluginTypeR\x04type\x1a\x7f\n" +
-	"\x0fTrafficSelector\x124\n" +
-	"\x04mode\x18\x01 \x01(\x0e2 .istio.type.v1beta1.WorkloadModeR\x04mode\x126\n" +
-	"\x05ports\x18\x02 \x03(\v2 .istio.type.v1beta1.PortSelectorR\x05ports\"?\n" +
+	"\tvm_config\x18\v \x01(\v2#.istio.extensions.v1alpha1.VmConfigR\bvmConfig\x12@\n" +
+	"\x05match\x18\f \x03(\v2*.istio.extensions.v1alpha1.TrafficSelectorR\x05match\x129\n" +
+	"\x04type\x18\x0e \x01(\x0e2%.istio.extensions.v1alpha1.PluginTypeR\x04type\"?\n" +
 	"\bVmConfig\x123\n" +
 	"\x03env\x18\x01 \x03(\v2!.istio.extensions.v1alpha1.EnvVarR\x03env\"\x82\x01\n" +
 	"\x06EnvVar\x12\x18\n" +
 	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12H\n" +
 	"\n" +
 	"value_from\x18\x03 \x01(\x0e2).istio.extensions.v1alpha1.EnvValueSourceR\tvalueFrom\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value*@\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\x7f\n" +
+	"\x0fTrafficSelector\x124\n" +
+	"\x04mode\x18\x01 \x01(\x0e2 .istio.type.v1beta1.WorkloadModeR\x04mode\x126\n" +
+	"\x05ports\x18\x02 \x03(\v2 .istio.type.v1beta1.PortSelectorR\x05ports*@\n" +
 	"\n" +
 	"PluginType\x12\x1b\n" +
 	"\x17UNSPECIFIED_PLUGIN_TYPE\x10\x00\x12\b\n" +
@@ -1082,7 +1082,7 @@ var file_extensions_v1alpha1_wasm_proto_goTypes = []any{
 	(*WasmPlugin)(nil),                    // 5: istio.extensions.v1alpha1.WasmPlugin
 	(*VmConfig)(nil),                      // 6: istio.extensions.v1alpha1.VmConfig
 	(*EnvVar)(nil),                        // 7: istio.extensions.v1alpha1.EnvVar
-	(*WasmPlugin_TrafficSelector)(nil),    // 8: istio.extensions.v1alpha1.WasmPlugin.TrafficSelector
+	(*TrafficSelector)(nil),               // 8: istio.extensions.v1alpha1.TrafficSelector
 	(*v1beta1.WorkloadSelector)(nil),      // 9: istio.type.v1beta1.WorkloadSelector
 	(*v1beta1.PolicyTargetReference)(nil), // 10: istio.type.v1beta1.PolicyTargetReference
 	(*_struct.Struct)(nil),                // 11: google.protobuf.Struct
@@ -1100,12 +1100,12 @@ var file_extensions_v1alpha1_wasm_proto_depIdxs = []int32{
 	12, // 6: istio.extensions.v1alpha1.WasmPlugin.priority:type_name -> google.protobuf.Int32Value
 	4,  // 7: istio.extensions.v1alpha1.WasmPlugin.fail_strategy:type_name -> istio.extensions.v1alpha1.FailStrategy
 	6,  // 8: istio.extensions.v1alpha1.WasmPlugin.vm_config:type_name -> istio.extensions.v1alpha1.VmConfig
-	8,  // 9: istio.extensions.v1alpha1.WasmPlugin.match:type_name -> istio.extensions.v1alpha1.WasmPlugin.TrafficSelector
+	8,  // 9: istio.extensions.v1alpha1.WasmPlugin.match:type_name -> istio.extensions.v1alpha1.TrafficSelector
 	0,  // 10: istio.extensions.v1alpha1.WasmPlugin.type:type_name -> istio.extensions.v1alpha1.PluginType
 	7,  // 11: istio.extensions.v1alpha1.VmConfig.env:type_name -> istio.extensions.v1alpha1.EnvVar
 	3,  // 12: istio.extensions.v1alpha1.EnvVar.value_from:type_name -> istio.extensions.v1alpha1.EnvValueSource
-	13, // 13: istio.extensions.v1alpha1.WasmPlugin.TrafficSelector.mode:type_name -> istio.type.v1beta1.WorkloadMode
-	14, // 14: istio.extensions.v1alpha1.WasmPlugin.TrafficSelector.ports:type_name -> istio.type.v1beta1.PortSelector
+	13, // 13: istio.extensions.v1alpha1.TrafficSelector.mode:type_name -> istio.type.v1beta1.WorkloadMode
+	14, // 14: istio.extensions.v1alpha1.TrafficSelector.ports:type_name -> istio.type.v1beta1.PortSelector
 	15, // [15:15] is the sub-list for method output_type
 	15, // [15:15] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name

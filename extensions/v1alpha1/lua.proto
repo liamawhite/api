@@ -1,0 +1,183 @@
+// Copyright Istio Authors
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
+syntax = "proto3";
+
+// $schema: istio.extensions.v1alpha1.LuaPlugin
+// $title: Lua Plugin
+// $description: Extend the functionality provided by the Istio proxy through Lua scripts.
+// $location: https://istio.io/docs/reference/config/proxy_extensions/lua-plugin.html
+// $aliases: [/docs/reference/config/extensions/v1alpha1/lua-plugin]
+
+// LuaPlugins provides a mechanism to extend the functionality provided by
+// the Istio proxy through Lua scripts.
+//
+// The order of execution (as part of Envoy's filter chain) is determined by
+// phase and priority settings, allowing the configuration of complex
+// interactions between user-supplied LuaPlugins and Istio's internal
+// filters.
+//
+// Examples:
+//
+// Basic Lua filter for request header manipulation:
+//
+// ```yaml
+// apiVersion: extensions.istio.io/v1alpha1
+// kind: LuaPlugin
+// metadata:
+//   name: header-modifier
+//   namespace: istio-system
+// spec:
+//   selector:
+//     matchLabels:
+//       istio: ingressgateway
+//   phase: AUTHN
+//   inlineCode: |
+//     function envoy_on_request(request_handle)
+//       request_handle:headers():add("x-custom-header", "added-by-lua")
+//     end
+// ```
+//
+// More complex example with priority and traffic matching:
+//
+// ```yaml
+// apiVersion: extensions.istio.io/v1alpha1
+// kind: LuaPlugin
+// metadata:
+//   name: conditional-header-modifier
+//   namespace: istio-ingress
+// spec:
+//   selector:
+//     matchLabels:
+//       istio: ingressgateway
+//   match:
+//   - mode: CLIENT
+//     ports:
+//     - number: 8080
+//     - number: 8081
+//   phase: AUTHN
+//   priority: 1000
+//   inlineCode: |
+//     function envoy_on_request(request_handle)
+//       local domain = "foo.com"
+//       local headers = request_handle:headers()
+//       local host = headers:get(":authority")
+//       local existing_auth_header = headers:get("Authorization")
+//       if (domain ~= nil and host ~= nil and existing_auth_header == nil and domain == host) then
+//         bearer_token = headers:get("cookie"):match("foo")
+//         if (bearer_token ~= nil) then
+//           headers:add("Authorization", "Bearer " .. bearer_token)
+//         end
+//       end
+//     end
+// ```
+//
+
+package istio.extensions.v1alpha1;
+
+import "extensions/v1alpha1/wasm.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/wrappers.proto";
+import "type/v1beta1/selector.proto";
+
+option go_package = "istio.io/api/extensions/v1alpha1";
+
+// LuaPlugin provides a mechanism to extend the functionality provided by
+// the Istio proxy through Lua scripts.
+//
+// <!-- crd generation tags
+// +cue-gen:LuaPlugin:groupName:extensions.istio.io
+// +cue-gen:LuaPlugin:versions:v1alpha1
+// +cue-gen:LuaPlugin:storageVersion
+// +cue-gen:LuaPlugin:annotations:helm.sh/resource-policy=keep
+// +cue-gen:LuaPlugin:labels:app=istio-pilot,chart=istio,heritage=Tiller,release=istio
+// +cue-gen:LuaPlugin:subresource:status
+// +cue-gen:LuaPlugin:spec:required
+// +cue-gen:LuaPlugin:scope:Namespaced
+// +cue-gen:LuaPlugin:releaseChannel:extended
+// +cue-gen:LuaPlugin:resource:categories=istio-io,extensions-istio-io
+// +cue-gen:LuaPlugin:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp
+// representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations.
+// Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata"
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=extensions.istio.io/v1alpha1
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+// +kubebuilder:validation:XValidation:message="only one of targetRefs or selector can be set",rule="oneof(self.selector, self.targetRef, self.targetRefs)"
+message LuaPlugin {
+  // Criteria used to select the specific set of pods/VMs on which
+  // this plugin configuration should be applied. If omitted, this
+  // configuration will be applied to all workload instances in the same
+  // namespace. If the `LuaPlugin` is present in the config root
+  // namespace, it will be applied to all applicable workloads in any
+  // namespace.
+  //
+  // At most, only one of `selector` or `targetRefs` can be set for a given policy.
+  istio.type.v1beta1.WorkloadSelector selector = 1;
+
+  // $hide_from_docs
+  istio.type.v1beta1.PolicyTargetReference targetRef = 2;
+
+  // Optional. The targetRefs specifies a list of resources the policy should be
+  // applied to. The targeted resources specified will determine which workloads
+  // the policy applies to.
+  //
+  // Currently, the following resource attachment types are supported:
+  // * `kind: Gateway` with `group: gateway.networking.k8s.io` in the same namespace.
+  // * `kind: GatewayClass` with `group: gateway.networking.k8s.io` in the root namespace.
+  // * `kind: Service` with `group: ""` or `group: "core"` in the same namespace. This type is only supported for waypoints.
+  // * `kind: ServiceEntry` with `group: networking.istio.io` in the same namespace.
+  //
+  // If not set, the policy is applied as defined by the selector.
+  // At most one of the selector and targetRefs can be set.
+  //
+  // NOTE: If you are using the `targetRefs` field in a multi-revision environment with Istio versions prior to 1.22,
+  // it is highly recommended that you pin the policy to a revision running 1.22+ via the `istio.io/rev` label.
+  // This is to prevent proxies connected to older control planes (that don't know about the `targetRefs` field)
+  // from misinterpreting the policy as namespace-wide during the upgrade process.
+  //
+  // NOTE: Waypoint proxies are required to use this field for policies to apply; `selector` policies will be ignored.
+  // +kubebuilder:validation:MaxItems=16
+  repeated istio.type.v1beta1.PolicyTargetReference targetRefs = 3;
+
+  // Determines where in the filter chain this `LuaPlugin` is to be injected.
+  PluginPhase phase = 4;
+
+  // Determines ordering of `LuaPlugins` in the same `phase`.
+  // When multiple `LuaPlugins` are applied to the same workload in the
+  // same `phase`, they will be applied by priority, in descending order.
+  // If `priority` is not set, or two `LuaPlugins` exist with the same
+  // value, the ordering will be deterministically derived from name and
+  // namespace of the `LuaPlugins`. Defaults to `0`.
+  google.protobuf.Int32Value priority = 5;
+
+  // Specifies the criteria to determine which traffic is passed to LuaPlugin.
+  // If a traffic satisfies any of TrafficSelectors,
+  // the traffic passes the LuaPlugin.
+  repeated TrafficSelector match = 6;
+
+  // The inline Lua script that will be executed by the Envoy Lua filter.
+  // This script should implement the required Envoy Lua filter callbacks
+  // such as envoy_on_request() and envoy_on_response().
+  //
+  // The script has access to the standard Envoy Lua APIs for header manipulation,
+  // request/response body access, and other proxy operations.
+  // +kubebuilder:validation:MinLength=1
+  string inlineCode = 7 [(google.api.field_behavior) = REQUIRED];
+}

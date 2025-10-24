@@ -1,0 +1,79 @@
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: basic-lua
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  phase: AUTHN
+  inlineCode: |
+    function envoy_on_request(request_handle)
+      request_handle:headers():add("x-custom-header", "added-by-lua")
+    end
+---
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: with-priority
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  phase: AUTHZ
+  priority: 1000
+  inlineCode: |
+    function envoy_on_request(request_handle)
+      local headers = request_handle:headers()
+      local user_id = headers:get("x-user-id")
+      if user_id and should_rate_limit(user_id) then
+        request_handle:respond({[":status"] = "429"}, "Too Many Requests")
+      end
+    end
+    
+    function should_rate_limit(user_id)
+      return false
+    end
+---
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: with-match
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  match:
+  - mode: CLIENT_AND_SERVER
+    ports:
+    - number: 8080
+  - mode: CLIENT
+    ports:
+    - number: 9090
+  inlineCode: |
+    function envoy_on_request(request_handle)
+      -- Simple request logging
+      local path = request_handle:headers():get(":path")
+      request_handle:logInfo("Processing request: " .. (path or "unknown"))
+    end
+---
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: with-targetrefs
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: frontend-gateway
+  inlineCode: |
+    function envoy_on_response(response_handle)
+      response_handle:headers():add("x-processed-by", "lua-plugin")
+    end
+---
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: minimal
+spec:
+  inlineCode: "function envoy_on_request(request_handle) end"

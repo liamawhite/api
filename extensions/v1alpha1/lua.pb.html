@@ -1,0 +1,114 @@
+---
+title: Lua Plugin
+description: Extend the functionality provided by the Istio proxy through Lua scripts.
+location: https://istio.io/docs/reference/config/proxy_extensions/lua-plugin.html
+layout: protoc-gen-docs
+generator: protoc-gen-docs
+schema: istio.extensions.v1alpha1.LuaPlugin
+aliases: [/docs/reference/config/extensions/v1alpha1/lua-plugin]
+number_of_entries: 1
+---
+<h2 id="LuaPlugin">LuaPlugin</h2>
+<section>
+<p>LuaPlugin provides a mechanism to extend the functionality provided by
+the Istio proxy through Lua scripts.</p>
+
+<table class="message-fields">
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr id="LuaPlugin-selector">
+<td><div class="field"><div class="name"><code><a href="#LuaPlugin-selector">selector</a></code></div>
+<div class="type"><a href="https://istio.io/docs/reference/config/type/workload-selector.html#WorkloadSelector">WorkloadSelector</a></div>
+</div></td>
+<td>
+<p>Criteria used to select the specific set of pods/VMs on which
+this plugin configuration should be applied. If omitted, this
+configuration will be applied to all workload instances in the same
+namespace. If the <code>LuaPlugin</code> is present in the config root
+namespace, it will be applied to all applicable workloads in any
+namespace.</p>
+<p>At most, only one of <code>selector</code> or <code>targetRefs</code> can be set for a given policy.</p>
+
+</td>
+</tr>
+<tr id="LuaPlugin-targetRefs">
+<td><div class="field"><div class="name"><code><a href="#LuaPlugin-targetRefs">targetRefs</a></code></div>
+<div class="type"><a href="https://istio.io/docs/reference/config/type/workload-selector.html#PolicyTargetReference">PolicyTargetReference[]</a></div>
+</div></td>
+<td>
+<p>The targetRefs specifies a list of resources the policy should be
+applied to. The targeted resources specified will determine which workloads
+the policy applies to.</p>
+<p>Currently, the following resource attachment types are supported:</p>
+<ul>
+<li><code>kind: Gateway</code> with <code>group: gateway.networking.k8s.io</code> in the same namespace.</li>
+<li><code>kind: GatewayClass</code> with <code>group: gateway.networking.k8s.io</code> in the root namespace.</li>
+<li><code>kind: Service</code> with <code>group: &quot;&quot;</code> or <code>group: &quot;core&quot;</code> in the same namespace. This type is only supported for waypoints.</li>
+<li><code>kind: ServiceEntry</code> with <code>group: networking.istio.io</code> in the same namespace.</li>
+</ul>
+<p>If not set, the policy is applied as defined by the selector.
+At most one of the selector and targetRefs can be set.</p>
+<p>NOTE: If you are using the <code>targetRefs</code> field in a multi-revision environment with Istio versions prior to 1.22,
+it is highly recommended that you pin the policy to a revision running 1.22+ via the <code>istio.io/rev</code> label.
+This is to prevent proxies connected to older control planes (that don&rsquo;t know about the <code>targetRefs</code> field)
+from misinterpreting the policy as namespace-wide during the upgrade process.</p>
+<p>NOTE: Waypoint proxies are required to use this field for policies to apply; <code>selector</code> policies will be ignored.</p>
+
+</td>
+</tr>
+<tr id="LuaPlugin-phase">
+<td><div class="field"><div class="name"><code><a href="#LuaPlugin-phase">phase</a></code></div>
+<div class="type"><a href="https://istio.io/docs/reference/config/proxy_extensions/wasm-plugin.html#PluginPhase">PluginPhase</a></div>
+</div></td>
+<td>
+<p>Determines where in the filter chain this <code>LuaPlugin</code> is to be injected.</p>
+
+</td>
+</tr>
+<tr id="LuaPlugin-priority">
+<td><div class="field"><div class="name"><code><a href="#LuaPlugin-priority">priority</a></code></div>
+<div class="type"><a href="https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#int32value">Int32Value</a></div>
+</div></td>
+<td>
+<p>Determines ordering of <code>LuaPlugins</code> in the same <code>phase</code>.
+When multiple <code>LuaPlugins</code> are applied to the same workload in the
+same <code>phase</code>, they will be applied by priority, in descending order.
+If <code>priority</code> is not set, or two <code>LuaPlugins</code> exist with the same
+value, the ordering will be deterministically derived from name and
+namespace of the <code>LuaPlugins</code>. Defaults to <code>0</code>.</p>
+
+</td>
+</tr>
+<tr id="LuaPlugin-match">
+<td><div class="field"><div class="name"><code><a href="#LuaPlugin-match">match</a></code></div>
+<div class="type"><a href="https://istio.io/docs/reference/config/proxy_extensions/wasm-plugin.html#TrafficSelector">TrafficSelector[]</a></div>
+</div></td>
+<td>
+<p>Specifies the criteria to determine which traffic is passed to LuaPlugin.
+If a traffic satisfies any of TrafficSelectors,
+the traffic passes the LuaPlugin.</p>
+
+</td>
+</tr>
+<tr id="LuaPlugin-inlineCode">
+<td><div class="field"><div class="name"><code><a href="#LuaPlugin-inlineCode">inlineCode</a></code></div>
+<div class="type">string</div>
+<div class="required">Required</div>
+</div></td>
+<td>
+<p>The inline Lua script that will be executed by the Envoy Lua filter.
+This script should implement the required Envoy Lua filter callbacks
+such as envoy_on_request() and envoy_on_response().</p>
+<p>The script has access to the standard Envoy Lua APIs for header manipulation,
+request/response body access, and other proxy operations.</p>
+
+</td>
+</tr>
+</tbody>
+</table>
+</section>

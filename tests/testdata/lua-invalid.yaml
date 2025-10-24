@@ -1,0 +1,102 @@
+_err: 'spec.inlineCode in body should be at least 1 chars long'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: empty-inline-code
+spec:
+  inlineCode: ""
+---
+_err: 'spec.inlineCode: Required value'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: missing-inline-code
+spec:
+  selector:
+    matchLabels:
+      app: test
+---
+_err: 'spec.match[0].ports[0].number: Required value'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: invalid-port
+spec:
+  match:
+    - ports:
+      - {}
+  inlineCode: "function envoy_on_request(request_handle) end"
+---
+_err: 'wildcard not allowed in label value match'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: invalid-selector-value
+spec:
+  selector:
+    matchLabels:
+      istio: "bar*"
+  inlineCode: "function envoy_on_request(request_handle) end"
+---
+_err: 'wildcard not allowed in label key match'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: invalid-selector-key
+spec:
+  selector:
+    matchLabels:
+      "istio*": "bar"
+  inlineCode: "function envoy_on_request(request_handle) end"
+---
+_err: 'only one of targetRefs or selector can be set'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: both-selector-and-targetrefs
+spec:
+  selector:
+    matchLabels:
+      app: test
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: test-gateway
+  inlineCode: "function envoy_on_request(request_handle) end"
+---
+_err: 'spec.targetRefs[0].kind: Required value'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: invalid-targetref-missing-kind
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    name: test-gateway
+  inlineCode: "function envoy_on_request(request_handle) end"
+---
+_err: 'spec.targetRefs[0].name: Required value'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: invalid-targetref-missing-name
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+  inlineCode: "function envoy_on_request(request_handle) end"
+---
+_err: 'spec in body must be of type object: "null"'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: nil-spec
+spec:
+---
+_err: 'spec.inlineCode in body must be of type string: "null"'
+apiVersion: extensions.istio.io/v1alpha1
+kind: LuaPlugin
+metadata:
+  name: nil-inline-code
+spec:
+  inlineCode:
